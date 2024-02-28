@@ -53,7 +53,7 @@ if (isset($_POST['name'])) {
 
 <style>
     .main {
-        background-image: url("book.jpg");
+        background-image: url("img/book.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         text-align: center;
@@ -140,6 +140,8 @@ if (isset($_POST['name'])) {
             <!-- Username: <br> -->
             <input type="text" placeholder="Username" class="name" name="name" required id="kk" value="username"
                 style=" pointer-events: none; text-align: center;"><br><br>
+
+                
             <input type="email" placeholder="Enter e-mail" class="email" name="email" required id="s"
                 style="text-align: center;"> <br><br>
 

@@ -21,7 +21,7 @@ if (isset($_POST['username'])) {
         echo '<script> alert("Username exists"); </script>';
         // header("Location:https://localhost/Mini Project sem-4/signup.php");
     } else
-        if ($conn->query("INSERT INTO `tws`.`tws` (`username`, `password`, `fname`, `lname`, `age`) VALUES ('$username', '$password', '$fname', '$lname', '$age');") == true) {
+        if ($conn->query("INSERT INTO `tws`.`tws` (`username`, `password`, `fname`, `lname`) VALUES ('$username', '$password', '$fname', '$lname');") == true) {
             header("location:https://localhost/Mini Project sem-4/index.php");
         } else {
             // echo "error: $sql <br> $con->error";
@@ -48,7 +48,7 @@ if (isset($_POST['username'])) {
         }
 
         .main1 {
-            background-image: url("signin.jpg");
+            background-image: url("img/signin.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             text-align: center;
@@ -78,9 +78,7 @@ if (isset($_POST['username'])) {
                     style="text-align: center;"><br><br>
                 <input type="text" placeholder="Enter username" class="username" name="username" required id="kk"
                     style="text-align: center;"><br><br>
-                <input type="number" placeholder="Enter your age" class="age" name="age" required id="kkkkk" min="18"
-                    max="60" style="text-align: center;
-            width: 180px"><br><br>
+                 
                 <input type="password" placeholder="Enter password" class="password" minlength="6" name="password"
                     required id="kkk" style="text-align: center;"><br><br>
                 <button type="submit" onclick="fun()" class="btn btn-primary">Sign-up</button>

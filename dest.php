@@ -34,7 +34,7 @@
         }
 
         .submain {
-            background-image: url("<?php
+            background-image: url("img/<?php
             $server1 = "localhost";
             $username1 = "root";
             $password1 = "";

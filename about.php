@@ -12,7 +12,7 @@
 </head>
 <style>
     .main{
-        background-image: url("about.jpg");
+        background-image: url("img/about.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         height: 95vh;

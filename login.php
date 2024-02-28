@@ -43,7 +43,7 @@ if (isset($_POST['username'])) {
             backdrop-filter: blur(10px);
         }
         .main1{
-            background-image: url("login.jpg");
+            background-image: url("img/login.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             text-align: center;

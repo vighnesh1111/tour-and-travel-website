@@ -74,7 +74,8 @@
         $password1 = "";
         $con = mysqli_connect($server1, $username1, $password1);
         $name = $_COOKIE["selected_item"];
-        $query = "SELECT b.email FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE t.username = '$name'";
+
+        $query = "SELECT * FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE b.name = '$name'";
         $result = mysqli_query($con, $query);
         $count = mysqli_num_rows($result);
         if (mysqli_num_rows($result) > 0) {
@@ -92,7 +93,7 @@
         $password1 = "";
         $con = mysqli_connect($server1, $username1, $password1);
         $name = $_COOKIE["selected_item"];
-        $query = "SELECT b.phone FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE t.username = '$name'";
+        $query = "SELECT b.phone FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE b.name = '$name'";
         $result = mysqli_query($con, $query);
         $count = mysqli_num_rows($result);
         if (mysqli_num_rows($result) > 0) {
@@ -105,27 +106,28 @@
         ?>
         <br> <br><br><br>
         Applied for booking: <br>
-
-        <?php
-        $server1 = "localhost";
-        $username1 = "root";
-        $password1 = "";
-        $con = mysqli_connect($server1, $username1, $password1);
-        $name = $_COOKIE["selected_item"];
-        $query = "SELECT d.destination FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE d.sr = b.tourname1 AND b.name = '$name'";
-        $result = mysqli_query($con, $query);
-        $count = mysqli_num_rows($result);
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "Destination: ", $row["destination"];
-                break;
+       
+            <?php
+            $server1 = "localhost";
+            $username1 = "root";
+            $password1 = "";
+            $con = mysqli_connect($server1, $username1, $password1);
+            $name = $_COOKIE["selected_item"];
+            $query = "SELECT d.destination FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE d.sr = b.tourname1 AND b.name = '$name'";
+            $result = mysqli_query($con, $query);
+            $count = mysqli_num_rows($result);
+            if (mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    echo "Destination: ", $row["destination"];
+                    break;
+                }
+            } else {
+                echo "<div class='iff'>No booking done</div>";
             }
-        } else {
-            echo "No booking done";
-        }
-        $con->close();
-        ?>
-        <br>
+            $con->close();
+            ?>
+  <br>
+
         <?php
         $server1 = "localhost";
         $username1 = "root";
@@ -198,7 +200,7 @@
         const data1 = sessionStorage.getItem('username1');
         const lname = sessionStorage.getItem('lname');
         if (data1) {
-            contentDiv.innerHTML = "Name: " + data1 + "&nbsp;"+lname;
+            contentDiv.innerHTML = "Name: " + data1 + "&nbsp;" + lname;
         }
     });
 
@@ -220,13 +222,12 @@
     // }
 
     function wait() {
-        // const main1 =document.querySelector('.main1')
-        // alert(main1)
-        // if(main1 == "[object HTMLDivElement]"){
-        //     alert("No booking recorded")
-        // }else{
-        window.location.href = 'https://localhost/Mini Project sem-4/cancel.php'
-        // }
+        alert(document.querySelector('.iff').innerHTML)
+        if (document.querySelector('.iff').innerHTML == "No booking record") {
+            alert("No booking record")
+        } else {
+            window.location.href = 'https://localhost/Mini Project sem-4/cancel.php'
+        }
     }
 </script>
 

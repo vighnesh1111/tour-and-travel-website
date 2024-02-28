@@ -91,7 +91,7 @@
         }
 
         .img {
-            background-image: url("img1.png");
+            background-image: url("img/img1.png");
             background-size: cover;
             background-repeat: no-repeat;
             width: 100%;
@@ -113,7 +113,7 @@
         }
 
         .first1 {
-            background-image: url("goa.jpg");
+            background-image: url("img/goa.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             filter: drop-shadow(8px 8px 10px black);
@@ -135,7 +135,7 @@
         }
 
         .second1 {
-            background-image: url("singapore.jpg");
+            background-image: url("img/singapore.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             width: 100%;
@@ -156,7 +156,7 @@
         }
 
         .third1 {
-            background-image: url("dubai.jpg");
+            background-image: url("img/dubai.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             width: 100%;
@@ -304,7 +304,7 @@
         }
 
         .fourth1 {
-            background-image: url("france.jpg");
+            background-image: url("img/france.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             filter: drop-shadow(8px 8px 10px black);
@@ -331,7 +331,7 @@
         }
 
         .five1 {
-            background-image: url("spain.jpg");
+            background-image: url("img/spain.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             filter: drop-shadow(8px 8px 10px black);
@@ -348,7 +348,7 @@
         }
 
         .six1 {
-            background-image: url("europe.jpg");
+            background-image: url("img/europe.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             width: 100%;
@@ -408,7 +408,7 @@
         }
 
         .seven1 {
-            background-image: url("shimla.jpg");
+            background-image: url("img/shimla.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             filter: drop-shadow(8px 8px 10px black);
@@ -430,7 +430,7 @@
         }
 
         .eight1 {
-            background-image: url("leh.jpg");
+            background-image: url("img/leh.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             width: 100%;
@@ -451,7 +451,7 @@
         }
 
         .nine1 {
-            background-image: url("gujarat.jpg");
+            background-image: url("img/gujarat.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             width: 100%;
@@ -523,7 +523,7 @@
             <button onclick="myFunction()" class="dropbtn">Search package</button>
             <div id="myDropdown" class="dropdown-content">
                 <div class="serach" style="float: right; width: 60px;
-            height: 50px; background-image: url(searchicon.png); background-repeat: no-repeat; background-size: cover;"
+            height: 50px; background-image: url(img/searchicon.png); background-repeat: no-repeat; background-size: cover;"
                     onclick="search()"></div>
                 <input type="text" placeholder="Search" id="myInput" style="text-align: center;"
                     onkeyup="filterFunction()">
@@ -587,7 +587,7 @@
                     &nbsp; &nbsp; done by
                     us in efficient manner</h1>
             </div>
-            <img src="sample.jpg" style="width:100%; height: 400px;">
+            <img src="img/sample.jpg" style="width:100%; height: 400px;">
             <div class="text"></div>
         </div>
         <div class="mySlides">
@@ -596,7 +596,7 @@
                     &nbsp; beautiful places included in packages
                 </h1>
             </div>
-            <img src="sample2.jpg" style="width:100%;  height: 400px;">
+            <img src="img/sample2.jpg" style="width:100%;  height: 400px;">
             <div class="text"></div>
         </div>
         <div class="mySlides">
@@ -604,7 +604,7 @@
                 <h1 style="margin-left: 100px; margin-top: 50px;">&nbsp; &nbsp; &nbsp; Details <br>&nbsp; &nbsp; &nbsp;
                     about variety of packages</h1>
             </div>
-            <img src="sample3.jpg" style="width:100%; height: 400px;">
+            <img src="img/sample3.jpg" style="width:100%; height: 400px;">
             <div class="text"></div>
         </div>
         <a class="prev" onclick="plusSlides(-1)">&#10094;</a>

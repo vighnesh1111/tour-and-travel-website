@@ -11,7 +11,7 @@
 </head>
 <style>
     .contact {
-        background-image: url("contact.jpg");
+        background-image: url("img/contact.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         width: 100%;
