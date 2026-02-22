@@ -27,17 +27,17 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/index.php">Home <span
+                    <a class="nav-link" href="https://localhost/Tourandtravel/index.php">Home <span
                             class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/about.php">About us</a>
+                    <a class="nav-link" href="https://localhost/Tourandtravel/about.php">About us</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/contact.php">Contact us</a>
+                    <a class="nav-link" href="https://localhost/Tourandtravel/contact.php">Contact us</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/logged.php">Previous</a>
+                    <a class="nav-link" href="https://localhost/Tourandtravel/logged.php">Previous</a>
 
                 </li>
             </ul>
@@ -100,7 +100,7 @@
     function check() {
         sessionStorage.setItem('data', '&nbsp; Profile');
         sessionStorage.setItem('data5', 'Log in')
-        window.location.href = "https://localhost/Mini Project sem-4/index.php";
+        window.location.href = "https://localhost/Tourandtravel/index.php";
         // sessionStorage.setItem('data3', 'Username')
     }
 

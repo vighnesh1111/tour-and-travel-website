@@ -1,213 +1,169 @@
+<?php
+session_start();
+
+// 1. Get Destination ID from URL (consistent with the updated dest.php)
+$dest_id = isset($_GET['id']) ? (int)$_GET['id'] : (isset($_SESSION['data1']) ? $_SESSION['data1'] : 1);
+
+// 2. Database Connection
+$server = "localhost";
+$user = "root";
+$pass = "";
+$db = "tourandtravel";
+
+$con = mysqli_connect($server, $user, $pass, $db);
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// 3. Single Prepared Statement to fetch everything
+$stmt = $con->prepare("SELECT * FROM `dest` WHERE sr = ?");
+$stmt->bind_param("i", $dest_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$data = $result->fetch_assoc();
+
+if (!$data) {
+    die("Tour details not found.");
+}
+$con->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
-
-</head>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const data = sessionStorage.getItem('data1');
-        document.cookie = "selected_item=" + data;
-        if (data) {
-            console.log(data)
-            // document.cookie = "selected_item="+data;
-        }
-    });
-    window.onload = function () {
-        if (!window.location.hash) {
-            window.location = window.location + '#loaded';
-            window.location.reload();
-        }
-    }
-</script>
-<style>
-    .imglast {
-        background-image: url("img/<?php
-        $server1 = "localhost";
-        $username1 = "root";
-        $password1 = "";
-
-        $con = mysqli_connect($server1, $username1, $password1);
-        $num = 0;
-        $num = $_COOKIE["selected_item"];
-        // $num =1;
-        $query = "select last from `dest`.`dest` where sr=$num";
-        $result = mysqli_query($con, $query);
-        $count = mysqli_num_rows($result);
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo $row["last"];
-            }
-        }
-        $con->close();
-        ?>");
- background-repeat: no-repeat;
+    <title>Booking - <?php echo $data['tourname']; ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .hero-banner {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url("img/<?php echo $data['last']; ?>");
             background-size: cover;
-            background-position: bottom;
-            width: 100%;
-            height: 400px;
+            background-position: center;
         }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800">
 
-        #one {
-            font-size: 20px;
-        }
-</style>
-
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"> Visite</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/index.php">Home <span
-                            class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/about.php">About us</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/contact.php">Contact us</a>
-                </li>
-            </ul>
+    <!-- Navigation -->
+    <nav class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-lg">
+        <a href="index.php" class="text-2xl font-bold text-blue-400 italic">VISITE</a>
+        <div class="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest">
+            <a href="index.php" class="hover:text-blue-400 transition">Home</a>
+            <a href="about.php" class="hover:text-blue-400 transition">About</a>
+            <a href="contact.php" class="hover:text-blue-400 transition">Contact</a>
         </div>
+        <button onclick="location.href='logged.php'" class="bg-blue-600 px-5 py-2 rounded-full text-xs font-bold uppercase transition hover:bg-blue-700">Profile</button>
     </nav>
 
-    <div class="imglast"></div>
-
-    <div class="first" style="padding-top: 20px">
-        <h1 style="text-align: center">
-            <?php
-            $server1 = "localhost";
-            $username1 = "root";
-            $password1 = "";
-
-            $con = mysqli_connect($server1, $username1, $password1);
-            $num = 0;
-            $num = $_COOKIE["selected_item"];
-            // $num =1;
-            $query = "select tourname from `dest`.`dest` where sr=$num";
-            $result = mysqli_query($con, $query);
-            $count = mysqli_num_rows($result);
-            if (mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo $row["tourname"];
-                }
-            }
-            $con->close();
-            ?>
-        </h1>
+    <!-- Hero Banner -->
+    <div class="hero-banner h-[400px] flex items-end p-8 md:p-16">
+        <h1 class="text-4xl md:text-6xl font-bold text-white drop-shadow-lg"><?php echo $data['tourname']; ?></h1>
     </div>
-    <div class="jjj" style="display:block;
 
-overflow:auto;
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            
+            <!-- Left Column: Includes & Why Us -->
+            <div>
+                <section class="mb-12">
+                    <h2 class="text-2xl font-bold mb-8 border-l-4 border-blue-600 pl-4">Tour Includes</h2>
+                    <div class="flex flex-wrap gap-8">
+                        <div class="text-center group">
+                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-2 transition-transform group-hover:-translate-y-2">
+                                <i class="fa fa-hotel"></i>
+                            </div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Hotel</p>
+                        </div>
+                        <div class="text-center group">
+                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-2 transition-transform group-hover:-translate-y-2">
+                                <i class="fa fa-utensils"></i>
+                            </div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Meals</p>
+                        </div>
+                        <div class="text-center group">
+                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-2 transition-transform group-hover:-translate-y-2">
+                                <i class="fa fa-bus"></i>
+                            </div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Transport</p>
+                        </div>
+                        <div class="text-center group">
+                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-2 transition-transform group-hover:-translate-y-2">
+                                <i class="fa fa-plane"></i>
+                            </div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Flight</p>
+                        </div>
+                        <div class="text-center group">
+                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-2 transition-transform group-hover:-translate-y-2">
+                                <i class="fa fa-camera-retro"></i>
+                            </div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Sightseeing</p>
+                        </div>
+                    </div>
+                </section>
 
-height: 100%; ">
-        <div class="fas" style="float: left; padding-top: 40px; padding-left: 100px;">
-            <h3>Tour includes: <br> <br>&nbsp; &nbsp;
-                <i style='font-size:24px' class='fas'>&#xf594; <br>
-                    <h6> Hotel</h6>
-                </i> &nbsp; &nbsp;
-                <i style='font-size:24px' class='fas'>&#xf805; <br>
-                    <h6>Meals</h6>
-                </i> &nbsp; &nbsp;
-                <i style="font-size:24px" class="fa">&#xf207;<br>
-                    <h6>Transport</h6>
-                </i> &nbsp; &nbsp;
-                <i style="font-size:24px" class="fa">&#xf072; <br>
-                    <h6>Flight</h6>
-                </i> &nbsp; &nbsp;
-                <i style='font-size:24px' class='fas'>&#xf59f; <br>
-                    <h6>Sightseeing</h6>
-                </i>
-            </h3> <br>
-            <br> <br><br>
-            <h3> Why travel with Visite:</h3> <br>
-            <h4>
-                Expert tour manager all throughout the tour. <br>
-                Yummy meals, all included in the tour price. <br>
-                Music, fun and games everyday. </h4>
-            <div class="final" style="margin: auto; text-align: center; padding-top: 50px">
-                <button class="btn btn-primary"
-                    onclick="location.href='https://localhost/Mini Project sem-4/final.php'">Book now</button>
+                <section class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h2 class="text-2xl font-bold mb-4">Why travel with Visite?</h2>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-green-500 mt-1"></i>
+                            <p class="text-slate-600 font-medium">Expert tour manager all throughout the tour.</p>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-green-500 mt-1"></i>
+                            <p class="text-slate-600 font-medium">Yummy meals, all included in the tour price.</p>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-green-500 mt-1"></i>
+                            <p class="text-slate-600 font-medium">Music, fun and games everyday.</p>
+                        </li>
+                    </ul>
+                    <button onclick="location.href='final.php?id=<?php echo $dest_id; ?>'" class="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-95">
+                        Confirm Booking
+                    </button>
+                </section>
+            </div>
+
+            <!-- Right Column: Itinerary / Details -->
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 prose prose-slate max-w-none">
+                <h2 class="text-2xl font-bold mb-6 text-slate-900">Tour Plan / Information</h2>
+                <div class="text-slate-600 leading-relaxed italic">
+                    <?php echo $data['book']; ?>
+                </div>
             </div>
         </div>
 
-        <div class="sec" style="float: right; background-color: white; height: auto; width:50%; padding-top: 40px;">
+        <!-- Policy Section -->
+        <section class="mt-20 border-t border-gray-200 pt-16">
+            <h2 class="text-3xl font-bold mb-10 text-center uppercase tracking-widest">Need to Know</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="bg-slate-100 p-8 rounded-3xl">
+                    <h3 class="text-xl font-bold mb-4 text-blue-600"><i class="fa fa-bus mr-2"></i> Transport</h3>
+                    <p class="text-slate-600">Coach Travel. A/C Vehicle Type depends upon group size to ensure maximum comfort during the journey.</p>
+                </div>
+                <div class="bg-slate-100 p-8 rounded-3xl">
+                    <h3 class="text-xl font-bold mb-4 text-blue-600"><i class="fa fa-file-invoice mr-2"></i> Documents Required</h3>
+                    <ul class="list-disc list-inside text-slate-600 space-y-2">
+                        <li>ADULT: Voter ID / Passport / Aadhar Card / Driving License.</li>
+                        <li>Original ID card is mandatory at time of travel.</li>
+                        <li>For NRI: Passport and Valid Indian Visa/OCI Card is mandatory.</li>
+                        <li>Carry two recent passport size photos.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
 
-            <?php
-            $server1 = "localhost";
-            $username1 = "root";
-            $password1 = "";
-
-            $con = mysqli_connect($server1, $username1, $password1);
-            $num = 0;
-            $num = $_COOKIE["selected_item"];
-            // $num =1;
-            $query = "select book from `dest`.`dest` where sr=$num";
-            $result = mysqli_query($con, $query);
-            $count = mysqli_num_rows($result);
-            if (mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo $row["book"];
-                }
-            }
-            $con->close();
-            ?>
-        </div>
-    </div>
-
-
-
-
-
-    <div class="final" style="margin: 100px; margin-top: 200px">
-        <h4>Need to know</h4>
-        <h5>Transport</h5>
-        <div id="one">Coach Tavel <br>
-            A/C Vehicle Type - depends upon group size</div>
-        <h5>Documents Required for Travel</h5>
-        <div id="one">ADULT: Voters ID / Passport / Aadhar Card / Driving Licence. <br>
-            ID card, ID card type and ID card number is mandatory at time of booking, kindly carry the same ID card on
-            tour.<br>
-            For NRI and Foreign National Guests alongwith Passport, Valid Indian Visa/ OCI Card/ PIO Card is
-            mandatory.<br>
-            Carry one passport size photo.</div>
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <footer class="bg-dark text-center text-white">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2020 Copyright: Visite
-        </div>
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12 px-6 text-center">
+        <p class="text-gray-500 mb-4 tracking-widest text-sm">EXPERIENCE THE WORLD WITH US</p>
+        <p class="opacity-70">© 2024 Visite Agency. All Rights Reserved.</p>
     </footer>
+
 </body>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
+</html>

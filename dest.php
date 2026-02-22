@@ -1,289 +1,135 @@
+<?php
+session_start();
+
+// 1. Get Destination ID from URL (e.g., dest.php?id=1)
+// If no ID is provided, it defaults to ID 1
+$dest_id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
+
+// 2. Database Connection
+$server = "localhost";
+$user = "root";
+$pass = "";
+$db = "tourandtravel";
+
+$con = mysqli_connect($server, $user, $pass, $db);
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// 3. Single Prepared Statement to fetch all data
+$stmt = $con->prepare("SELECT * FROM `dest` WHERE sr = ?");
+$stmt->bind_param("i", $dest_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$data = $result->fetch_assoc();
+
+if (!$data) {
+    die("Destination not found.");
+}
+
+$con->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
-<!-- <meta http-equiv="refresh" content="1"> -->
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const data = sessionStorage.getItem('data1');
-        document.cookie = "selected_item=" + data;
-        if (data) {
-            console.log(data)
-            // document.cookie = "selected_item="+data;
-        }
-    });
-    window.onload = function () {
-        if (!window.location.hash) {
-            window.location = window.location + '#loaded';
-            window.location.reload();
-        }
-    }
-</script>
-
 <head>
     <meta charset="UTF-8">
-    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Destinations</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title><?php echo $data['destination']; ?> | Visite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .main {
-            height: 500px;
-            /* margin-left: 5%; */
-            margin-right: 5%;
-        }
-
-        .submain {
-            background-image: url("img/<?php
-            $server1 = "localhost";
-            $username1 = "root";
-            $password1 = "";
-
-            $con = mysqli_connect($server1, $username1, $password1);
-            $num = 0;
-            $num = $_COOKIE["selected_item"];
-            // $num =1;
-            $query = "select img from `dest`.`dest` where sr=$num";
-            $result = mysqli_query($con, $query);
-            $count = mysqli_num_rows($result);
-            if (mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo $row["img"];
-                }
-            }
-            $con->close();
-            ?>");
-
-                background-repeat: no-repeat;
-                background-size: cover;
-                width: 50%;
-                height: 600px;
-                float: left;
-            }
-
-            .submain2 {
-                width: 50%;
-                float: right;
-                height: 600px;
-            }
+        body { font-family: 'Poppins', sans-serif; }
     </style>
 </head>
+<body class="bg-white text-slate-900">
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"> Visite</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/about.php">About us</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/contact.php">Contact us</a>
-                </li>
-            </ul>
+    <!-- Navigation -->
+    <nav class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <a href="index.php" class="text-2xl font-bold text-blue-400 italic">VISITE</a>
+        <div class="hidden md:flex gap-8 text-sm font-semibold uppercase tracking-widest">
+            <a href="index.php" class="hover:text-blue-400 transition">Home</a>
+            <a href="about.php" class="hover:text-blue-400 transition">About</a>
+            <a href="contact.php" class="hover:text-blue-400 transition">Contact</a>
         </div>
-
-
+        <button onclick="location.href='logged.php'" class="bg-blue-600 px-5 py-2 rounded-full text-xs font-bold uppercase">Profile</button>
     </nav>
-    <div class="main">
-        <div class="submain">
 
+    <!-- Main Content Section -->
+    <section class="flex flex-col md:flex-row min-h-[90vh]">
+        
+        <!-- Left Side: Dynamic Image -->
+        <div class="w-full md:w-1/2 h-96 md:h-auto relative overflow-hidden">
+            <img src="img/<?php echo $data['img']; ?>" 
+                 class="w-full h-full object-cover" 
+                 alt="<?php echo $data['destination']; ?>">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent md:hidden"></div>
         </div>
-        <div class="submain2" style="padding-left:20px; padding-right: 20px;">
-            <h1 style="text-align: center; padding-top: 20px;">
-                <?php
-                $server1 = "localhost";
-                $username1 = "root";
-                $password1 = "";
-                $con = mysqli_connect($server1, $username1, $password1);
-                $num = 0;
-                $num = $_COOKIE["selected_item"];
-                // $num = 1;
-                $query = "select destination from `dest`.`dest` where sr=$num";
-                $result = mysqli_query($con, $query);
-                $count = mysqli_num_rows($result);
-                if (mysqli_num_rows($result) > 0) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo $row["destination"];
-                    }
-                }
-                $con->close();
-                ?>
-            </h1>
-            <h4 style="text-align: center; margin-top: 60px">
-                <?php
-                $server1 = "localhost";
-                $username1 = "root";
-                $password1 = "";
-                $con = mysqli_connect($server1, $username1, $password1);
-                $num = 0;
-                $num = $_COOKIE["selected_item"];
-                // $num = 1;
-                $query = "select details from `dest`.`dest` where sr=$num";
-                $result = mysqli_query($con, $query);
-                $count = mysqli_num_rows($result);
-                if (mysqli_num_rows($result) > 0) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo $row["details"];
-                    }
-                }
-                $con->close();
-                ?>
-            </h4>
 
-            <div class="op1" style="width: 90%;
-    /* background-color:black; */
-    border-top: 2px solid black;
-    border-bottom: 2px solid black;
-     height: 150px; margin:auto; margin-top: 100px">
-                <br>
-                <div class="aa" style="text-align: left; float:left">
-                    <h3 style="text-align: left; float:left">
-                        <?php
-                        $server1 = "localhost";
-                        $username1 = "root";
-                        $password1 = "";
+        <!-- Right Side: Destination Details -->
+        <div class="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-slate-50">
+            <nav class="text-sm text-slate-400 mb-4">
+                <a href="index.php">Destinations</a> / <span class="text-blue-500"><?php echo $data['destination']; ?></span>
+            </nav>
 
-                        $con = mysqli_connect($server1, $username1, $password1);
-                        $num = 0;
-                        $num = $_COOKIE["selected_item"];
-                        // $num =1;
-                        $query = "select tourname from `dest`.`dest` where sr=$num";
-                        $result = mysqli_query($con, $query);
-                        $count = mysqli_num_rows($result);
-                        if (mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo $row["tourname"];
+            <h1 class="text-5xl font-bold mb-6 text-slate-900"><?php echo $data['destination']; ?></h1>
+            
+            <p class="text-lg text-slate-600 leading-relaxed mb-10">
+                <?php echo $data['details']; ?>
+            </p>
+
+            <!-- Pricing & Rating Card -->
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800"><?php echo $data['tourname']; ?></h2>
+                        <div class="flex text-yellow-400 mt-1">
+                            <!-- Show stars based on database value -->
+                            <?php 
+                            $stars = (int)$data['star'];
+                            for($i=1; $i<=5; $i++) {
+                                echo $i <= $stars ? '<i class="fa fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
                             }
-                        }
-                        $con->close();
-                        ?>
-                    </h3><br> <br>
-                    <h6 style="text-align: left; float:left">
-                        <!-- Rating:  &#9733; &#9733; &#9733; &#9733; &#9733; -->
-                        <?php
-                        $server1 = "localhost";
-                        $username1 = "root";
-                        $password1 = "";
-
-                        $con = mysqli_connect($server1, $username1, $password1);
-                        $num = 0;
-                        $num = $_COOKIE["selected_item"];
-                        // $num =1;
-                        $query = "select star from `dest`.`dest` where sr=$num";
-                        $result = mysqli_query($con, $query);
-                        $count = mysqli_num_rows($result);
-                        if (mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo $row["star"];
-                            }
-                        }
-                        $con->close();
-                        ?>
-
-                    </h6>
-                    <!-- &#9734; -->
+                            ?>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-blue-600"><?php echo $data['day']; ?></p>
+                        <p class="text-sm text-slate-400 font-medium">All-inclusive package</p>
+                    </div>
                 </div>
-                <h4 style="margin-left: 50px; text-align:right;">
-                    <!-- 2 days 3 nights <br> @50000/person -->
-                    <?php
-                    $server1 = "localhost";
-                    $username1 = "root";
-                    $password1 = "";
 
-                    $con = mysqli_connect($server1, $username1, $password1);
-                    $num = 0;
-                    $num = $_COOKIE["selected_item"];
-                    // $num =1;
-                    $query = "select day from `dest`.`dest` where sr=$num";
-                    $result = mysqli_query($con, $query);
-                    $count = mysqli_num_rows($result);
-                    if (mysqli_num_rows($result) > 0) {
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            echo $row["day"];
-                        }
-                    }
-                    $con->close();
-                    ?>
-                </h4>
-                <div class="books" style="margin-right: 20px; text-align:right;">
-                    <button class="btn btn-primary" onclick="book()">View details</button>
+                <div class="mt-8 border-t border-slate-100 pt-6">
+                    <button onclick="bookNow()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-transform active:scale-95">
+                        Book Your Trip Now
+                    </button>
                 </div>
             </div>
-
-
         </div>
-    </div>
+    </section>
 
-
-
-
-
-
-    <div class="last" style="text-align: center; font-size: 20px; margin-left: 100px; margin-right: 100px; margin-top: 200px; margin-bottom: 100px; background-color: azure; padding: 50px">
-        Booking a travel package when it comes to travelling to new parts of the country or the world is a practice that
-        has slowly gained a lot of popularity. Today, whenever it is about planning a holiday trip, many people have a
-        preferred travel portal in India that is best for their specific needs. Owing to the faith bestowed in our
-        travel services by our patrons, visite has established its niche and is counted among the travel
-        agencies in Mumbai.
-
- Travelling has become much more than just visiting a new
-        destination. That is why each of our vacation packages offers you the respite that you anticipate from a
-        holiday. As a well-informed traveller, it is only right to expect more from your travel company in India - we
-        strive to ensure the same for our customers. It is no longer about only conveyance and accommodation. For those
-        who enjoy travelling, the best travel packages are those which can offer them holistic holiday experiences. That
-        is exactly what you get when you opt for the best travel company in Mumbai.
-
-    </div>
-
-    <footer class="bg-dark text-center text-white">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-          © 2020 Copyright: Visite
+    <!-- Trust Section -->
+    <section class="bg-white py-20 px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <i class="fa fa-quote-left text-blue-100 text-6xl mb-6"></i>
+            <p class="text-xl italic text-slate-500 leading-relaxed">
+                Traveling has become much more than just visiting a new destination. That is why each of our vacation packages offers you the respite that you anticipate from a holiday. As a well-informed traveller, it is only right to expect more from your travel company in India - we strive to ensure the same for our customers.
+            </p>
+            <div class="w-20 h-1 bg-blue-600 mx-auto mt-8"></div>
         </div>
-      </footer>
-</body>
+    </section>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-10 px-6 text-center text-sm opacity-90">
+        <p>© 2024 Visite Agency. All Rights Reserved.</p>
+    </footer>
 
-<script>
-    function book() {
-        const data = sessionStorage.getItem('data1');
-        // alert(data)
-        if (data == 1) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else if (data == 2) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else if (data == 3) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else if (data == 4) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else if (data == 5) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else if (data == 6) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else if (data == 7) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else if (data == 8) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else if (data == 9) {
-            window.location.href = "https://localhost/Mini Project sem-4/book.php";
-        } else { }
+   <script>
+    function bookNow() {
+        // This passes the current destination ID to book.php
+        window.location.href = "book.php?id=<?php echo $dest_id; ?>";
     }
 </script>
-
+</body>
 </html>

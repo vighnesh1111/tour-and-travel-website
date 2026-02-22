@@ -1,194 +1,159 @@
 <?php
+session_start();
+
+// 1. Database Connection
+$server1 = "localhost";
+$username1 = "root";
+$password1 = "";
+$dbname = "tourandtravel";
+$con = mysqli_connect($server1, $username1, $password1, $dbname);
+
+if (!$con) { die("Connection failed: " . mysqli_connect_error()); }
+
+// 2. Get the Destination ID from the URL (Passed from book.php?id=X)
+$dest_id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
+
+// 3. Fetch the Tour Name for the header
+$stmt = $con->prepare("SELECT tourname FROM `dest` WHERE sr = ?");
+$stmt->bind_param("i", $dest_id);
+$stmt->execute();
+$res = $stmt->get_result();
+$tour = $res->fetch_assoc();
+$tourname = $tour ? $tour['tourname'] : "Select Tour";
+
+// 4. Handle Form Submission
 if (isset($_POST['name'])) {
-    $server1 = "localhost";
-    $username1 = "root";
-    $password1 = "";
+    // Store all data in session for the payment page
+    $_SESSION['i1'] = $dest_id;
+    $_SESSION['i2'] = $_POST['name'];
+    $_SESSION['i3'] = $_POST['email'];
+    $_SESSION['i4'] = $_POST['phone'];
+    $_SESSION['i5'] = $_POST['address'];
+    $_SESSION['i6'] = $_POST['visiterno'];
+    $_SESSION['i7'] = $_POST['visitdate'];
 
-    $con = mysqli_connect($server1, $username1, $password1);
-
-    if (!$con) {
-        die("connection failed" . mysqli_connect_error());
-    }
-
-    $name = $_POST['name'];
-    $visiterno = $_POST['visiterno'];
-    $visitdate = $_POST['visitdate'];
-    $num = $_COOKIE["selected_item"];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    // $phone = mysql_real_escape_string( $_POST['mob']);
-    $address = $_POST['address'];
-
-    $sql = "INSERT INTO `book`.`book` (`tourname1`,`name`,`email`, `phone`, `address`, `visiterno`, `visitdate`) VALUES ('$num', '$name', '$email', '$phone', '$address', '$visiterno', '$visitdate');";
-
-    if ($con->query($sql) == true) {
-        // echo 'alert("Successfully booked")';
-    } else {
-        echo "error: $sql <br> $con->error";
-        'console.log("nope")';
-    }
-
-    $con->close();
-    header("location:https://localhost/Mini Project sem-4/booked.php");
+    header("Location: payment.php");
+    exit();
 }
+$con->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const data = sessionStorage.getItem('data1');
-        document.cookie = "selected_item=" + data;
-        if (data) {
-            console.log(data)
-            // document.cookie = "selected_item="+data;
-        }
-    });
-    window.onload = function () {
-        if (!window.location.hash) {
-            window.location = window.location + '#loaded';
-            window.location.reload();
-        }
-    }
-</script>
-
-<style>
-    .main {
-        background-image: url("img/book.jpg");
-        background-repeat: no-repeat;
-        background-size: cover;
-        text-align: center;
-        /* backdrop-filter: blur(10px); */
-        /* width: 400px; */
-        margin: auto;
-        padding-top: 50px;
-        display: block;
-        overflow: auto;
-        height: 100%;
-        padding-bottom: 10px;
-        height: 100vh;
-        /* filter: blur(5px); */
-    }
-    .main1{
- width: 500px;
- margin: auto;
-  backdrop-filter: blur(10px);
-    }
-</style>
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>booking</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>Complete Booking | Visite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-
+        body { font-family: 'Poppins', sans-serif; }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
+<body class="bg-slate-900 text-white min-h-screen">
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"> Visite</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/index.php">Home <span
-                            class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/about.php">About us</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/contact.php">Contact us</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/book.php">Previous</a>
-
-                </li>
-            </ul>
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-white/10">
+        <a href="index.php" class="text-2xl font-bold text-blue-400 italic">VISITE</a>
+        <div class="flex gap-6 text-xs font-bold uppercase tracking-widest">
+            <a href="index.php" class="hover:text-blue-400 transition">Home</a>
+            <a href="book.php?id=<?php echo $dest_id; ?>" class="hover:text-blue-400 transition">Previous</a>
         </div>
     </nav>
-    <div class="main">
-        <div class="main1">
-        <h1 style="padding-bottom: 40px">
-            <?php
-            $server1 = "localhost";
-            $username1 = "root";
-            $password1 = "";
-            $con = mysqli_connect($server1, $username1, $password1);
-            $num = 0;
-            $num = $_COOKIE["selected_item"];
-            // $num = 1;
-            $query = "select tourname from `dest`.`dest` where sr=$num";
-            $result = mysqli_query($con, $query);
-            $count = mysqli_num_rows($result);
-            if (mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo $row["tourname"];
-                }
-            }
-            $con->close();
-            ?>
-        </h1>
-        <form action="final.php" name="verify" method="post">
-            <!-- Username: <br> -->
-            <input type="text" placeholder="Username" class="name" name="name" required id="kk" value="username"
-                style=" pointer-events: none; text-align: center;"><br><br>
 
+    <!-- Main Wrapper -->
+    <div class="relative min-h-screen flex items-center justify-center pt-20 pb-10 bg-cover bg-center" 
+         style="background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('img/book.jpg');">
+        
+        <div class="glass w-full max-w-2xl rounded-[2rem] p-8 md:p-12 shadow-2xl mx-4">
+            
+            <div class="text-center mb-10">
+                <span class="text-blue-400 text-xs font-bold uppercase tracking-[0.3em]">Final Step</span>
+                <h1 class="text-3xl md:text-4xl font-bold mt-2"><?php echo $tourname; ?></h1>
+                <p class="text-gray-400 mt-2">Enter your traveler details below</p>
+            </div>
+
+            <form action="final.php?id=<?php echo $dest_id; ?>" method="POST" class="space-y-5">
                 
-            <input type="email" placeholder="Enter e-mail" class="email" name="email" required id="s"
-                style="text-align: center;"> <br><br>
+                <!-- Username (Read-Only) -->
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-4 mb-2 block">Username</label>
+                    <input type="text" name="name" id="username_field" readonly
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-3 text-gray-400 focus:outline-none" 
+                        value="Loading...">
+                </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Email -->
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-4 mb-2 block">Email Address</label>
+                        <input type="email" name="email" required placeholder="example@mail.com"
+                            class="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                    </div>
+                    <!-- Phone -->
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-4 mb-2 block">Phone Number</label>
+                        <input type="number" name="phone" required placeholder="00000 00000"
+                            class="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                    </div>
+                </div>
 
-            <input type="number" placeholder="Enter phone number" class="phone" name="phone" required id="ss"
-                style="text-align: center;"><br><br>
+                <!-- Address -->
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-4 mb-2 block">Full Address</label>
+                    <textarea name="address" rows="2" required placeholder="Street, City, State..."
+                        class="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"></textarea>
+                </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Visitors -->
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-4 mb-2 block">Number of Visitors</label>
+                        <input type="number" name="visiterno" required min="1" max="10" placeholder="1-10"
+                            class="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                    </div>
+                    <!-- Date -->
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase ml-4 mb-2 block">Travel Date</label>
+                        <input type="date" id="travel_date" name="visitdate" required
+                            class="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                    </div>
+                </div>
 
-            <!-- <input type="text" placeholder="Enter address" class="address" name="address" required id="sss" 
-                style="text-align: center; " textarea rows="5" ><br><br> -->
-            <textarea rows="3" cols="30" name="address" class="address" required id="sss"
-                placeholder="Enter your address" style="text-align: center"></textarea><br><br>
-            <!-- Enter number of visiter: <br> -->
-            <input type="number" placeholder="Enter number of visiter" class="visiterno" name="visiterno" required
-                id="kkk" style="text-align: center; width: 200px" min="1" max="5"><br><br>
-            Date of travel:<br>
-            <input type="date" placeholder="Select tour date" class="visitdate" name="visitdate" required id="kkkk"
-                style="margin-bottom: 40px; text-align: center;"> <br><br>
-            <button type="submit" onclick="last()" class="btn btn-primary">Submit</button>
-        </form>
+                <!-- Action Button -->
+                <div class="pt-6">
+                    <button type="submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-xl transition transform active:scale-95 flex items-center justify-center gap-3">
+                        Proceed to Payment <i class="fa fa-arrow-right text-sm"></i>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <footer class="bg-dark text-center text-white">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2020 Copyright: Visite
-        </div>
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-gray-600 py-6 text-center text-sm border-t border-white/5">
+        © 2024 Visite. All rights reserved.
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fill username from session storage
+            const savedUser = sessionStorage.getItem('username');
+            if(savedUser) {
+                document.getElementById('username_field').value = savedUser;
+            }
+
+            // Set minimum date to today (prevents booking in the past)
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('travel_date').setAttribute('min', today);
+        });
+    </script>
 </body>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
-<script>
-    function last() {
-
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const imp = sessionStorage.getItem('username');
-        document.getElementById('kk').value = imp;
-    });
-</script>
-
 </html>

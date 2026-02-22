@@ -1,123 +1,138 @@
 <?php
+session_start();
+$server1 = "localhost";
+$username1 = "root";
+$password1 = "";
+$dbname = "tourandtravel";
+
+$con = mysqli_connect($server1, $username1, $password1, $dbname);
+if (!$con) { die("Connection failed: " . mysqli_connect_error()); }
+
+$error = "";
+
 if (isset($_POST['username'])) {
-    $server1 = "localhost";
-    $username1 = "root";
-    $password1 = "";
+    // Trim username and password to remove accidental spaces
+    $username = trim($_POST['username']); 
+    $password = trim($_POST['password']);
+    
+    // Capitalize names
+    $fname = ucwords(strtolower(trim($_POST['fname'])));
+    $lname = ucwords(strtolower(trim($_POST['lname'])));
 
-    $con = mysqli_connect($server1, $username1, $password1);
-    $conn = mysqli_connect($server1, $username1, $password1);
-    if (!$con) {
-        die("connection failed" . mysqli_connect_error());
-    }
+    // Check if username exists
+    $stmt = $con->prepare("SELECT username FROM `tws` WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
-    $age = $_POST['age'];
+    if ($result->num_rows > 0) {
+        $error = "Username already exists!";
+    } else {
+        $insert_stmt = $con->prepare("INSERT INTO `tws` (`username`, `password`, `fname`, `lname`) VALUES (?, ?, ?, ?)");
+        $insert_stmt->bind_param("ssss", $username, $password, $fname, $lname);
 
-    $duplicate = mysqli_query($con, "select * from `tws`.`tws` where username='$username'");
-    if (mysqli_num_rows($duplicate) > 0) {
-        echo '<script> alert("Username exists"); </script>';
-        // header("Location:https://localhost/Mini Project sem-4/signup.php");
-    } else
-        if ($conn->query("INSERT INTO `tws`.`tws` (`username`, `password`, `fname`, `lname`) VALUES ('$username', '$password', '$fname', '$lname');") == true) {
-            header("location:https://localhost/Mini Project sem-4/index.php");
+        if ($insert_stmt->execute()) {
+            $_SESSION['username'] = $username;
+            header("Location: index.php");
+            exit();
         } else {
-            // echo "error: $sql <br> $con->error";
-            'console.log("nope")';
+            $error = "Registration failed. check if your table columns are long enough!";
         }
-    $con->close();
+    }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sign up</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>Sign Up | Tour & Travel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        .main {
-            width: 500px;
-            margin: auto;
-            backdrop-filter: blur(10px);
-        }
-
-        .main1 {
-            background-image: url("img/signin.jpg");
-            background-repeat: no-repeat;
-            background-size: cover;
-            text-align: center;
-            /* backdrop-filter: blur(10px); */
-            /* width: 400px; */
-            margin: auto;
-            padding-top: 150px;
-            display: block;
-            overflow: auto;
-            height: 100%;
-            padding-bottom: 100px;
-            height: 100vh;
-            /* filter: blur(5px); */
+        body { font-family: 'Poppins', sans-serif; }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
+<body class="bg-gray-900">
 
-<body>
-    <div class="main1">
-        <div class="main">
-            <br>
-            <h1>sign up</h1><br>
-            <form action="signup.php" name="verify" method="post">
-                <input type="text" placeholder="Enter first name" class="fname" name="fname" required id="k"
-                    style="text-align: center;"> &nbsp;
-                <input type="text" placeholder="Enter last name" class="lname" name="lname" required id="kkkk"
-                    style="text-align: center;"><br><br>
-                <input type="text" placeholder="Enter username" class="username" name="username" required id="kk"
-                    style="text-align: center;"><br><br>
-                 
-                <input type="password" placeholder="Enter password" class="password" minlength="6" name="password"
-                    required id="kkk" style="text-align: center;"><br><br>
-                <button type="submit" onclick="fun()" class="btn btn-primary">Sign-up</button>
+    <div class="relative min-h-screen flex items-center justify-center bg-cover bg-center px-4" 
+         style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('img/signin.jpg');">
+        
+        <div class="glass w-full max-w-lg p-8 rounded-3xl shadow-2xl">
+            
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-white mb-2">Create Account</h1>
+                <p class="text-gray-300">Join us for your next adventure</p>
+            </div>
+
+            <!-- Error Messages -->
+            <?php if($error != ""): ?>
+                <div class="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl mb-6 text-center text-sm">
+                    <?php echo $error; ?>
+                </div>
+            <?php endif; ?>
+
+            <form action="signup.php" method="POST" id="signupForm" class="space-y-4" autocomplete="off">
+                
+                <!-- Name Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="fname" required placeholder="First Name"
+                        autocomplete="off" spellcheck="false"
+                        class="w-full px-5 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    
+                    <input type="text" name="lname" required placeholder="Last Name"
+                        autocomplete="off" spellcheck="false"
+                        class="w-full px-5 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+
+                <!-- Username -->
+                <input type="text" name="username" required placeholder="Username"
+                    autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off"
+                    class="w-full px-5 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+
+                <!-- Password -->
+                <input type="password" name="password" required placeholder="Password (Min. 6 chars)" minlength="6"
+                    autocomplete="off"
+                    class="w-full px-5 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-1 active:scale-95 mt-4">
+                    Register Now
+                </button>
             </form>
+
+            <p class="text-center text-gray-300 mt-8 text-sm">
+                Already have an account? 
+                <a href="login.php" class="text-blue-400 font-semibold hover:text-blue-300 transition-colors">Log In</a>
+            </p>
         </div>
     </div>
+
+    <script>
+        document.getElementById('signupForm').onsubmit = function() {
+            // Validation check
+            const pass = document.querySelector('input[name="password"]').value;
+            if(pass.length < 6) {
+                alert("Password must be at least 6 characters");
+                return false;
+            }
+
+            // Store data in sessionStorage as requested
+            sessionStorage.setItem('data', '&nbsp;' + document.querySelector('input[name="username"]').value);
+            sessionStorage.setItem('username', document.querySelector('input[name="username"]').value);
+            sessionStorage.setItem('username1', document.querySelector('input[name="fname"]').value);
+            sessionStorage.setItem('lname', document.querySelector('input[name="lname"]').value);
+            sessionStorage.setItem('data5', "Sign out");
+        };
+    </script>
+
 </body>
-<script>
-    function fun() {
-        var username = document.forms["verify"]["username"].value
-        var password = document.forms["verify"]["password"].value
-        var len = password.length
-        console.log(password)
-        console.log(len)
-
-        if (username == "" && password == "") {
-            alert("Enter username and password")
-        } else if (len < 6) {
-            alert("password length must be atleast 6")
-        } else {
-        }
-
-        sessionStorage.setItem('data', '&nbsp;' + document.querySelector('.username').value);
-        sessionStorage.setItem('data1', "Sign out");
-        sessionStorage.setItem('username', '' + document.querySelector('.username').value);
-        sessionStorage.setItem('data5', "Sign out");
-        sessionStorage.setItem('username1', '' + document.querySelector('.fname').value)
-        sessionStorage.setItem('lname', '' + document.querySelector('.lname').value);
-        // alert(document.querySelector('.lname').value)
-    }
-</script>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
-
 </html>

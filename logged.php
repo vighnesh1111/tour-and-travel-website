@@ -1,234 +1,199 @@
+<?php
+session_start();
+
+// 1. Redirect to login if user is not logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// 2. Database Connection
+$server = "localhost";
+$db_user = "root";
+$db_pass = "";
+$dbname = "tourandtravel"; // Ensure all tables are in one DB or specify DB names in query
+
+$con = mysqli_connect($server, $db_user, $db_pass, $dbname);
+
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// 3. Fetch all user and booking info in ONE query
+$username = $_SESSION['username'];
+$booking_data = null;
+
+// Adjust the table names (e.g. `book`.`book`) if they are in different databases
+$query = "SELECT b.*, d.destination 
+          FROM `book` b 
+          LEFT JOIN `dest` d ON b.tourname1 = d.sr 
+          WHERE b.name = ? 
+          LIMIT 1";
+
+$stmt = $con->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $booking_data = $result->fetch_assoc();
+}
+
+$con->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>My Profile | Visite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .main {
-            text-align: center;
-            padding-top: 50px;
-            font-size: 30px;
+        body {
+            font-family: 'Poppins', sans-serif;
         }
 
-        .signout {
-            padding-top: 50px;
-            text-align: center;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const data = sessionStorage.getItem('username');
-            document.cookie = "selected_item=" + data;
-            if (data) {
-                console.log(data)
-                // document.cookie = "selected_item="+data;
-            }
-        });
-
-        window.onload = function () {
-            if (!window.location.hash) {
-                window.location = window.location + '#loaded';
-                window.location.reload();
-            }
-        }
-    </script>
 </head>
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"> Visite</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<body class="bg-gray-100 min-h-screen flex flex-col">
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/index.php">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/about.php">About us</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/contact.php">Contact us
-                        <span class="sr-only">(current)</span>
-                    </a>
-                </li>
-            </ul>
+    <!-- Navigation -->
+    <nav class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow-lg">
+        <a href="index.php" class="text-2xl font-bold text-blue-400 uppercase tracking-tighter italic">Visite</a>
+        <div class="flex gap-6 text-sm font-medium">
+            <a href="index.php" class="hover:text-blue-400 transition">Home</a>
+            <a href="about.php" class="hover:text-blue-400 transition">About</a>
+            <a href="contact.php" class="hover:text-blue-400 transition">Contact</a>
         </div>
     </nav>
 
-    <div class="main" id="content1"></div>
-    <br>
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
 
-    <div class="main1" style="text-align: center; padding-top: 100px; font-size: 25px;">
-        <?php
-        $server1 = "localhost";
-        $username1 = "root";
-        $password1 = "";
-        $con = mysqli_connect($server1, $username1, $password1);
-        $name = $_COOKIE["selected_item"];
+            <!-- Profile Header -->
+            <div
+                class="bg-white rounded-t-3xl p-8 border-b border-gray-100 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+                <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-4xl">
+                    <i class="fa fa-user"></i>
+                </div>
+                <div class="text-center md:text-left">
+                    <h1 class="text-3xl font-bold text-gray-800">
+                        <span id="display-name">Loading...</span>
+                    </h1>
+                    <p class="text-gray-500">Member since 2024</p>
+                </div>
+                <div class="md:ml-auto flex flex-col gap-2">
+                    <button onclick="handleSignOut()"
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-xl font-semibold transition">
+                        <i class="fa fa-sign-out-alt mr-2"></i>Sign Out
+                    </button>
+                </div>
+            </div>
 
-        $query = "SELECT * FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE b.name = '$name'";
-        $result = mysqli_query($con, $query);
-        $count = mysqli_num_rows($result);
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "E-mail: ", $row["email"];
-                break;
-            }
-        }
-        $con->close();
-        ?>
-        <br>
-        <?php
-        $server1 = "localhost";
-        $username1 = "root";
-        $password1 = "";
-        $con = mysqli_connect($server1, $username1, $password1);
-        $name = $_COOKIE["selected_item"];
-        $query = "SELECT b.phone FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE b.name = '$name'";
-        $result = mysqli_query($con, $query);
-        $count = mysqli_num_rows($result);
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "Phone number: ", $row["phone"];
-                break;
-            }
-        }
-        $con->close();
-        ?>
-        <br> <br><br><br>
-        Applied for booking: <br>
-       
-            <?php
-            $server1 = "localhost";
-            $username1 = "root";
-            $password1 = "";
-            $con = mysqli_connect($server1, $username1, $password1);
-            $name = $_COOKIE["selected_item"];
-            $query = "SELECT d.destination FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE d.sr = b.tourname1 AND b.name = '$name'";
-            $result = mysqli_query($con, $query);
-            $count = mysqli_num_rows($result);
-            if (mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "Destination: ", $row["destination"];
-                    break;
-                }
-            } else {
-                echo "<div class='iff'>No booking done</div>";
-            }
-            $con->close();
-            ?>
-  <br>
+            <!-- Dashboard Content -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
 
-        <?php
-        $server1 = "localhost";
-        $username1 = "root";
-        $password1 = "";
-        $con = mysqli_connect($server1, $username1, $password1);
-        $name = $_COOKIE["selected_item"];
-        $query = "SELECT b.visiterno FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE d.sr = b.tourname1 AND b.name = '$name'";
-        $result = mysqli_query($con, $query);
-        $count = mysqli_num_rows($result);
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "Number of visiter: ", $row["visiterno"];
-                break;
-            }
-        }
-        $con->close();
-        ?>
-        <br>
-        <?php
-        $server1 = "localhost";
-        $username1 = "root";
-        $password1 = "";
-        $con = mysqli_connect($server1, $username1, $password1);
-        $name = $_COOKIE["selected_item"];
-        $query = "SELECT b.visitdate FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE d.sr = b.tourname1 AND b.name = '$name'";
-        $result = mysqli_query($con, $query);
-        $count = mysqli_num_rows($result);
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "Date for visit: ", $row["visitdate"];
-                break;
-            }
-        }
-        $con->close();
-        ?>
-    </div>
+                <!-- Contact Information -->
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-50">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
+                        <i class="fa fa-id-card text-blue-500"></i> Contact Info
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Email Address</p>
+                            <p class="text-gray-700 font-medium"><?php echo $booking_data['email'] ?? 'Not provided'; ?>
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Phone Number</p>
+                            <p class="text-gray-700 font-medium"><?php echo $booking_data['phone'] ?? 'Not provided'; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="signout">
-        <!-- <button>Sign out</button> -->
-        <button type="button" onclick="check()" class="btn btn-primary">Sign out</button><br><br><br>
-        <button type="button" onclick="wait()" class="btn btn-primary">Cancel Tour</button>
-        <br><br><br><br><br><br><br><br>
-    </div>
+                <!-- Booking Details -->
+                <div class="md:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-gray-50">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            <i class="fa fa-plane-departure text-blue-500"></i> Current Booking
+                        </h2>
+                        <?php if ($booking_data): ?>
+                            <span
+                                class="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-bold uppercase">Confirmed</span>
+                        <?php endif; ?>
+                    </div>
 
-    <footer class="bg-dark text-center text-white">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2020 Copyright: Visite
+                    <?php if ($booking_data): ?>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="p-4 bg-gray-50 rounded-2xl">
+                                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Destination</p>
+                                <p class="text-xl font-bold text-blue-600"><?php echo $booking_data['destination']; ?></p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-2xl">
+                                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Travel Date</p>
+                                <p class="text-gray-700 font-bold">
+                                    <?php echo date("F j, Y", strtotime($booking_data['visitdate'])); ?></p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-2xl">
+                                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Total Visitors</p>
+                                <p class="text-gray-700 font-bold"><?php echo $booking_data['visiterno']; ?> Persons</p>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="location.href='cancel.php'"
+                                    class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 rounded-2xl transition">
+                                    Cancel This Tour
+                                </button>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-center py-12">
+                            <i class="fa fa-calendar-xmark text-gray-200 text-5xl mb-4"></i>
+                            <p class="text-gray-400 font-medium">No active bookings found.</p>
+                            <a href="index.php" class="text-blue-500 font-bold hover:underline mt-2 inline-block">Book a
+                                trip now</a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-gray-400 py-8 text-center text-sm">
+        <p>© 2024 Visite Agency. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get user info from sessionStorage as set during login/signup
+            const fname = sessionStorage.getItem('username1') || "";
+            const lname = sessionStorage.getItem('lname') || "";
+
+            if (fname) {
+                document.getElementById('display-name').innerHTML = fname + " " + lname;
+            } else {
+                // Fallback to username if names aren't in session
+                document.getElementById('display-name').innerHTML = "<?php echo $_SESSION['username']; ?>";
+            }
+        });
+
+        function handleSignOut() {
+            sessionStorage.clear();
+            // Create a small logout script or simply redirect
+            window.location.href = "index.php";
+        }
+    </script>
 </body>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
-<script>
-    function check() {
-        sessionStorage.setItem('data', '&nbsp; Profile');
-        sessionStorage.setItem('data5', 'Log in')
-        window.location.href = "https://localhost/Mini Project sem-4/index.php";
-        // sessionStorage.setItem('data3', 'Username')
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const contentDiv = document.getElementById('content1');
-        const data1 = sessionStorage.getItem('username1');
-        const lname = sessionStorage.getItem('lname');
-        if (data1) {
-            contentDiv.innerHTML = "Name: " + data1 + "&nbsp;" + lname;
-        }
-    });
-
-    // function cancl(){
-    //     alert("
-
-    //     $server1 = "localhost";
-    //     $username1 = "root";
-    //     $password1 = "";
-    //     $con = mysqli_connect($server1, $username1, $password1);
-    //     $name = $_COOKIE["selected_item"];
-    //     $query = "SELECT FROM `dest`.`dest` d,`tws`.`tws` t, `book`.`book` b WHERE d.sr = b.tourname1 AND b.name = '$name'";
-    //     $result = mysqli_query($con, $query);
-    //     if($result == true){
-    //         // echo '<script>alert("wtf");</s';
-    //     }
-    //     $con->close();
-    //     ");
-    // }
-
-    function wait() {
-        alert(document.querySelector('.iff').innerHTML)
-        if (document.querySelector('.iff').innerHTML == "No booking record") {
-            alert("No booking record")
-        } else {
-            window.location.href = 'https://localhost/Mini Project sem-4/cancel.php'
-        }
-    }
-</script>
 
 </html>

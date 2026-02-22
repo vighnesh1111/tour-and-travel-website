@@ -56,13 +56,13 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/index.php">Home</a>
+                    <a class="nav-link" href="https://localhost/Tourandtravel/index.php">Home</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="#">About us<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://localhost/Mini Project sem-4/contact.php">Contact us</a>
+                    <a class="nav-link" href="https://localhost/Tourandtravel/contact.php">Contact us</a>
                 </li>
             </ul>
         </div>
